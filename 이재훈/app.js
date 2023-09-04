@@ -1,10 +1,10 @@
 const http = require('http')
 const express = require('express')
 const { DataSource } = require('typeorm');
-const mysql = require('mysql')
+// const mysql = require('mysql')
 
-// const myDataSource = new DataSource({
-const myDataSource = mysql.createConnection({
+const myDataSource = new DataSource({
+    // const myDataSource = mysql.createConnection({
     type: 'mysql',
     host: 'localhost',
     port: '3306',
@@ -13,13 +13,14 @@ const myDataSource = mysql.createConnection({
     database: 'westagram'
 })
 
+
 const app = express()
 
 app.use(express.json()) // for parsing application/json
 
 app.get("/", async (req, res) => {
     try {
-        return res.status(200).json({ "message": "Welcome to Soheon's server!" })
+        return res.status(200).json({ "message": "Welcome to my server!" })
     } catch (err) {
         console.log(err)
     }
@@ -31,12 +32,12 @@ app.get('/users', async (req, res) => {
         // query DB with SQL
         // Database Source 변수를 가져오고.
         // SELECT id, name, password FROM users;
-        const userData = await myDataSource.query(`SELECT id, name, email FROM USERS`)
+        const userData = await myDataSource.query(`SELECT id, name, email FROM users;`)
 
         // console 출력
 
         console.log("USER DATA :", userData)
-
+g
         // FRONT 전달
 
         return res.status(200).json({
@@ -119,17 +120,16 @@ const start = async () => { // 서버를 시작하는 함수입니다.
     }
 }
 
-// myDataSource.initialize()
+myDataSource.initialize()
+    .then(() => {
+        console.log("Data Source has been initialized!")
+    })
 // myDataSource.connect()
-//     .then(() => {
-//         console.log("Data Source has been initialized!")
-//     })
-myDataSource.connect()
 
-myDataSource.query('SELECT * from Users', (error, rows, fields) => {
-    if (error);
-    console.log('User info is: ', rows);
-});
+// myDataSource.query('SELECT * from Users', (error, rows, fields) => {
+//     if (error);
+//     console.log('User info is: ', rows);
+// });
 
-myDataSource.end();
+// myDataSource.end();
 start()
