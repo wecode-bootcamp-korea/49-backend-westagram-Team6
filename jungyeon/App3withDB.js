@@ -1,13 +1,22 @@
 const http = require('http')
 const express = require('express')
 const { DataSource } = require('typeorm');
+const dotenv = require("dotenv")
+
+dotenv.config()
+
+require("dotenv").config();
+
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_PASS:", process.env.DB_PASS);
 
 const myDataSource = new DataSource({
  type: 'mysql', 
  host: 'localhost', 
  port: '3306',
  username: 'root',
- password: '',
+ password: '1234',
  database: 'westagram'
 })
 
