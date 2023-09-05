@@ -38,7 +38,7 @@ app.get('/users', async(req, res) => {
     // query DB with SQL
     // Database Source 변수를 가져오고.
     // SELECT id, name, password FROM users;
-    const userData = await myDataSource.query(`SELECT id, name, email FROM USERS`)
+    const userData = await myDataSource.query(`SELECT id, name, email FROM users`)
 
     // console 출력
 
@@ -50,7 +50,10 @@ app.get('/users', async(req, res) => {
       "users": userData
     })
 	} catch (error) {
-		console.log(error)
+    console.log(error)
+    return res.status(error.statusCode).json({
+      "message": error.message
+    })
 	}
 })
 //2. users 생성
