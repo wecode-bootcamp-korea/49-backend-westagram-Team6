@@ -62,16 +62,51 @@ app.post("/users", async(req, res) => {
 	try {
     // 1. user 정보를 frontend로부터 받는다. (프론트가 사용자 정보를 가지고, 요청을 보낸다) 
     const me = req.body
+    const {name,password,email} = me;
 
     // 2. user 정보 console.log로 확인 한 번!
     console.log("ME: ", me)
 
     // 3. DATABASE 정보 저장.
 
-    const name2 = me.name
-    const password2 = me.password
-    const email2 = me.email
+   // email, name, password가 다 입력되지 않은 경우
+   if (email === undefined || name === undefined || password === undefined) {
+    const error = new Error("KEY_ERROR")
+    error.statusCode = 400
+    throw error
+  }
 
+  // (필수) 비밀번호가 너무 짧을 때
+  if (password.length < 8) {
+    const error = new Error("INVALID_PASSWORD")
+    error.statusCode = 400
+    throw error
+  }
+
+  // (심화, 진행) 이메일이 중복되어 이미 가입한 경우
+  // 1. 유저가 입력한 Email인 'shlee@wecode.co.kr'이 이미 우리 DB에 있는지 확인한다.
+
+  const existingUser = await myDataSource.query(`
+    SELECT id, email FROM users WHERE email='${email}';
+  `)
+
+  console.log('existing user: ', existingUser)
+  
+  // 2. 있으면, 즉, 중복이면 아래 if문 실행
+  // 
+  if (existingUser.length>0) { // existing user 이용해서 판별`
+    const error = new Error("DUPLICATED_EMAIL_ADDRESS")
+    error.statusCode = 400
+    throw error
+  }
+/*
+  // (심화, 선택) 비밀번호에 특수문자 없을 때
+  if (password) {
+    const error = new Error("")
+    error.statusCode = 400
+    throw error
+  }
+*/
     const userData = await myDataSource.query(`
       INSERT INTO users (
         name, 
@@ -79,21 +114,25 @@ app.post("/users", async(req, res) => {
         email
       )
       VALUES (
-        '${name2}',
-        '${password2}', 
-        '${email2}'
+        '${name}',
+        '${password}', 
+        '${email}'
       )
     `)
 
     // 4. DB data 저장 여부 확인
-    console.log('iserted user id', userData.insertId)
+    console.log('inserted user id', userData.insertId)
 
     // 5. send response to FRONTEND
 		return res.status(201).json({
       "message": "userCreated" 
 		})
 	} catch (err) {
-		console.log(err)
+    console.log(err)
+    return res.status(error.statusCode).json({
+      "message": error.message
+    })
+    
 	}
 })
 
